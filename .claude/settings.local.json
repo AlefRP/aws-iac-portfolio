@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(Get-ChildItem -Path \"d:\\\\terraform_aws\" -Force -File | Where-Object { $_.Name -match '\\\\.\\(tf|hcl|tfvars|json|yaml|yml\\)$' } | Select-Object Name)"
-    ]
-  }
-}
