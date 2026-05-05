@@ -1,0 +1,12 @@
+aws_region    = "us-east-1"
+aws_profile   = "default"
+environment   = "dev"
+bucket_name   = "meu-projeto-terraform-s3-dev"
+iam_user_name = "terraform-s3-user"
+
+tags = {
+  Project     = "terraform-aws"
+  Environment = "dev"
+  Owner       = "seu-nome"
+  ManagedBy   = "terraform"
+}

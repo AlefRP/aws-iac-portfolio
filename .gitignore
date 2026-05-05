@@ -1,0 +1,44 @@
+# Terraform state (pode conter dados sensiveis)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Variaveis locais (podem conter segredos)
+*.tfvars
+!*.tfvars.example
+!**/tests/*.tfvars
+*.auto.tfvars
+
+# Diretorio de trabalho do Terraform (binarios dos providers, plugins)
+.terraform/
+.terraform.tfstate.lock.info
+
+# Plan files
+*.tfplan
+*.plan
+
+# Logs de crash
+crash.log
+crash.*.log
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration
+.terraformrc
+terraform.rc
+
+# tfsec / trivy / outros scanners
+results.sarif
+.tfsec/
+
+# IDE
+.vscode/
+.idea/
+
+# Python (se houver scripts auxiliares)
+__pycache__/
+*.py[cod]
