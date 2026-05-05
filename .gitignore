@@ -35,9 +35,11 @@ terraform.rc
 results.sarif
 .tfsec/
 
-# IDE
+# IDE / agentes
 .vscode/
 .idea/
+.claude/
+CLAUDE.md
 
 # Python (se houver scripts auxiliares)
 __pycache__/
