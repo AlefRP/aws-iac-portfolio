@@ -211,4 +211,4 @@ E uma esteira de **deploy real** ainda **nao** esta configurada. Pra isso seria 
 
 ## Licenca
 
-MIT
+This project is licensed under the [MIT License](LICENSE). Feel free to use and adapt any part of this project in your own data workflows.
