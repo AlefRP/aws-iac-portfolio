@@ -21,22 +21,59 @@ variable "environment" {
   }
 }
 
-variable "bucket_name" {
-  description = "Globally unique name for the S3 bucket"
+variable "project_name" {
+  description = "Short project identifier used as prefix for resource names"
+  type        = string
+  default     = "tf-data"
+}
+
+variable "data_bucket_name" {
+  description = "Globally unique name for the data lake S3 bucket"
   type        = string
 }
 
-variable "iam_user_name" {
-  description = "Name for the IAM user with S3 access"
+variable "athena_results_bucket_name" {
+  description = "Globally unique name for the Athena query results bucket"
   type        = string
-  default     = "terraform-s3-user"
+}
+
+variable "tickers" {
+  description = "List of Yahoo Finance tickers to collect"
+  type        = list(string)
+  default = [
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "PETR4.SA",
+    "VALE3.SA",
+  ]
+}
+
+variable "yahoo_range" {
+  description = "Yahoo Finance range parameter (5d, 1mo, 3mo, 1y, max)"
+  type        = string
+  default     = "5d"
+}
+
+variable "yahoo_interval" {
+  description = "Yahoo Finance interval parameter (1d, 1wk, 1mo)"
+  type        = string
+  default     = "1d"
+}
+
+variable "lambda_schedule" {
+  description = "EventBridge cron expression for the collector Lambda. Null = no schedule"
+  type        = string
+  default     = "cron(0 6 * * ? *)"
 }
 
 variable "tags" {
   description = "Common tags applied to all resources"
   type        = map(string)
   default = {
-    Project   = "terraform-aws"
+    Project   = "terraform-aws-data-platform"
     ManagedBy = "terraform"
   }
 }

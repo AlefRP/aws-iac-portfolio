@@ -1,12 +1,31 @@
-aws_region    = "us-east-1"
-aws_profile   = "default"
-environment   = "dev"
-bucket_name   = "meu-projeto-terraform-s3-dev"
-iam_user_name = "terraform-s3-user"
+aws_region  = "us-east-1"
+aws_profile = "default"
+environment = "dev"
+
+project_name = "tf-data"
+
+# Both bucket names must be globally unique. Replace with your own.
+data_bucket_name           = "alefr-tf-data-platform-dev-20260601"
+athena_results_bucket_name = "alefr-tf-data-platform-athena-dev-20260601"
+
+tickers = [
+  "AAPL",
+  "MSFT",
+  "GOOGL",
+  "AMZN",
+  "META",
+  "PETR4.SA",
+  "VALE3.SA",
+]
+
+yahoo_range    = "5d"
+yahoo_interval = "1d"
+
+# EventBridge cron - every day at 06:00 UTC. Set to null to disable schedule.
+lambda_schedule = "cron(0 6 * * ? *)"
 
 tags = {
-  Project     = "terraform-aws"
-  Environment = "dev"
-  Owner       = "seu-nome"
-  ManagedBy   = "terraform"
+  Project   = "terraform-aws-data-platform"
+  Owner     = "alefr"
+  ManagedBy = "terraform"
 }

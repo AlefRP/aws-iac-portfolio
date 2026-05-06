@@ -1,3 +1,5 @@
+MODULES := s3_bucket iam_user lambda glue_database glue_crawler glue_job athena_workgroup
+
 .PHONY: help init fmt fmt-check validate lint test test-modules security plan apply destroy clean
 
 help: ## Show this help
@@ -5,8 +7,10 @@ help: ## Show this help
 
 init: ## terraform init em todos os modulos
 	terraform init
-	cd modules/s3_bucket && terraform init -backend=false
-	cd modules/iam_user && terraform init -backend=false
+	@for m in $(MODULES); do \
+		echo ">> init modules/$$m"; \
+		(cd modules/$$m && terraform init -backend=false); \
+	done
 	cd examples/basic && terraform init -backend=false
 
 fmt: ## terraform fmt recursivo
@@ -17,8 +21,10 @@ fmt-check: ## verifica formatacao
 
 validate: ## terraform validate em todos os modulos
 	terraform validate
-	cd modules/s3_bucket && terraform validate
-	cd modules/iam_user && terraform validate
+	@for m in $(MODULES); do \
+		echo ">> validate modules/$$m"; \
+		(cd modules/$$m && terraform validate); \
+	done
 	cd examples/basic && terraform validate
 
 lint: ## roda tflint recursivo
@@ -29,8 +35,12 @@ test: ## roda terraform test no root
 	terraform test
 
 test-modules: ## roda terraform test em todos os modulos
-	cd modules/s3_bucket && terraform test
-	cd modules/iam_user && terraform test
+	@for m in $(MODULES); do \
+		echo ">> test modules/$$m"; \
+		(cd modules/$$m && terraform test); \
+	done
+
+test-all: test test-modules ## roda todos os testes (root + modulos)
 
 security: ## scan de seguranca com trivy
 	trivy config .

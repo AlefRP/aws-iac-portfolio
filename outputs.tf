@@ -1,29 +1,59 @@
-output "bucket_id" {
-  description = "Name of the S3 bucket"
-  value       = module.s3_bucket.bucket_id
+output "data_bucket" {
+  description = "Data lake bucket name"
+  value       = module.data_bucket.bucket_id
 }
 
-output "bucket_arn" {
-  description = "ARN of the S3 bucket"
-  value       = module.s3_bucket.bucket_arn
+output "athena_results_bucket" {
+  description = "Bucket for Athena query results"
+  value       = module.athena_results_bucket.bucket_id
 }
 
-output "bucket_regional_domain_name" {
-  description = "Regional domain name of the S3 bucket"
-  value       = module.s3_bucket.bucket_regional_domain_name
+output "raw_path" {
+  description = "S3 URI for the raw zone"
+  value       = local.raw_path
 }
 
-output "bucket_region" {
-  description = "AWS region where the bucket is hosted"
-  value       = module.s3_bucket.bucket_region
+output "curated_path" {
+  description = "S3 URI for the curated zone"
+  value       = local.curated_path
 }
 
-output "iam_user_arn" {
-  description = "ARN of the IAM user"
-  value       = module.iam_user.user_arn
+output "lambda_function_name" {
+  description = "Yahoo Finance collector Lambda name"
+  value       = module.collector_lambda.function_name
 }
 
-output "iam_user_name" {
-  description = "Name of the IAM user"
-  value       = module.iam_user.user_name
+output "lambda_function_arn" {
+  description = "Yahoo Finance collector Lambda ARN"
+  value       = module.collector_lambda.function_arn
+}
+
+output "glue_database_name" {
+  description = "Glue catalog database name"
+  value       = module.glue_database.name
+}
+
+output "raw_crawler_name" {
+  description = "Glue raw zone crawler name"
+  value       = module.raw_crawler.name
+}
+
+output "curated_crawler_name" {
+  description = "Glue curated zone crawler name"
+  value       = module.curated_crawler.name
+}
+
+output "etl_job_name" {
+  description = "Glue ETL job name"
+  value       = module.stocks_etl.name
+}
+
+output "athena_workgroup_name" {
+  description = "Athena workgroup name"
+  value       = module.athena.name
+}
+
+output "athena_results_location" {
+  description = "S3 URI used as Athena query results location"
+  value       = module.athena.results_location
 }

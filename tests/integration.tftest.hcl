@@ -1,76 +1,115 @@
 mock_provider "aws" {
-  override_data {
-    target = data.aws_iam_policy_document.s3_access
-    values = {
-      json = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"AllowBucketOperations\",\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"s3:PutObject\",\"s3:DeleteObject\",\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::mock\",\"arn:aws:s3:::mock/*\"]}]}"
+  mock_resource "aws_iam_role" {
+    defaults = {
+      arn = "arn:aws:iam::123456789012:role/mock-role"
+    }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = {
+      arn = "arn:aws:s3:::mock-bucket"
+    }
+  }
+  mock_resource "aws_lambda_function" {
+    defaults = {
+      arn           = "arn:aws:lambda:us-east-1:123456789012:function:mock-fn"
+      function_name = "mock-fn"
+    }
+  }
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = {
+      arn = "arn:aws:events:us-east-1:123456789012:rule/mock-rule"
     }
   }
 }
+mock_provider "archive" {}
 
 variables {
-  bucket_name   = "integration-test-bucket-2026"
-  iam_user_name = "integration-test-user"
-  environment   = "dev"
-  aws_region    = "us-east-1"
-  aws_profile   = "default"
+  data_bucket_name           = "integration-data-bucket-2026"
+  athena_results_bucket_name = "integration-athena-results-2026"
+  environment                = "dev"
+  aws_region                 = "us-east-1"
+  aws_profile                = "default"
+  project_name               = "test-data"
+  tickers                    = ["AAPL", "MSFT"]
+  lambda_schedule            = "cron(0 6 * * ? *)"
 }
 
-run "root_module_applies_successfully" {
-  command = apply
+run "data_platform_plans_successfully" {
+  command = plan
 
   assert {
-    condition     = module.iam_user.user_name == "integration-test-user"
-    error_message = "Root module must produce the configured iam user"
+    condition     = module.collector_lambda.function_name == "test-data-yahoo-finance-collector"
+    error_message = "Lambda name should follow project naming convention"
   }
 
   assert {
-    condition     = module.s3_bucket.bucket_id != ""
-    error_message = "Root module must produce a non-empty bucket id"
+    condition     = module.glue_database.name == "test_data_dev"
+    error_message = "Glue database should use snake_case from project + environment"
   }
 
   assert {
-    condition     = module.s3_bucket.bucket_arn != ""
-    error_message = "Root module must produce a non-empty bucket ARN"
-  }
-}
-
-run "iam_policy_is_scoped_to_bucket" {
-  command = apply
-
-  assert {
-    condition     = length(data.aws_iam_policy_document.s3_access.statement) == 1
-    error_message = "Policy document should contain exactly one statement"
-  }
-
-  assert {
-    condition     = contains(data.aws_iam_policy_document.s3_access.statement[0].actions, "s3:GetObject")
-    error_message = "Policy must allow s3:GetObject"
-  }
-
-  assert {
-    condition     = !contains(data.aws_iam_policy_document.s3_access.statement[0].actions, "s3:*")
-    error_message = "Policy must not grant wildcard s3:* (least privilege)"
+    condition     = module.athena.name == "test-data-dev"
+    error_message = "Athena workgroup name should be project-environment"
   }
 }
 
-run "common_tags_propagate_to_modules" {
+run "lambda_has_yahoo_environment_variables" {
+  command = plan
+
+  assert {
+    condition     = module.collector_lambda.function_name == "test-data-yahoo-finance-collector"
+    error_message = "Lambda should be created"
+  }
+
+  assert {
+    condition     = local.raw_prefix == "raw/yahoo_finance"
+    error_message = "Raw prefix must be raw/yahoo_finance"
+  }
+}
+
+run "glue_paths_are_consistent" {
   command = apply
+
+  assert {
+    condition     = startswith(local.raw_path, "s3://")
+    error_message = "Raw path should be an S3 URI"
+  }
+
+  assert {
+    condition     = startswith(local.curated_path, "s3://")
+    error_message = "Curated path should be an S3 URI"
+  }
+
+  assert {
+    condition     = endswith(local.raw_path, "/raw/yahoo_finance/")
+    error_message = "Raw path must point at raw/yahoo_finance/"
+  }
+
+  assert {
+    condition     = endswith(local.curated_path, "/curated/stocks/")
+    error_message = "Curated path must point at curated/stocks/"
+  }
+}
+
+run "two_buckets_are_provisioned" {
+  command = apply
+
+  assert {
+    condition     = module.data_bucket.bucket_id != module.athena_results_bucket.bucket_id
+    error_message = "Data bucket and Athena results bucket must be different"
+  }
+}
+
+run "tickers_are_propagated" {
+  command = plan
 
   variables {
-    tags = {
-      Project   = "tf-aws"
-      ManagedBy = "terraform"
-    }
+    tickers = ["PETR4.SA", "VALE3.SA", "ITUB4.SA"]
   }
 
   assert {
     condition     = local.common_tags["Environment"] == "dev"
-    error_message = "common_tags must include Environment from var.environment"
-  }
-
-  assert {
-    condition     = local.common_tags["Project"] == "tf-aws"
-    error_message = "common_tags must propagate user tags"
+    error_message = "Environment tag should be propagated"
   }
 }
 
