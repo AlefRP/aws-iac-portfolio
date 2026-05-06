@@ -5,8 +5,8 @@ environment = "dev"
 project_name = "tf-data"
 
 # Both bucket names must be globally unique. Replace with your own.
-data_bucket_name           = "alefr-tf-data-platform-dev-20260601"
-athena_results_bucket_name = "alefr-tf-data-platform-athena-dev-20260601"
+data_bucket_name           = "user-tf-data-platform-dev-20260601"
+athena_results_bucket_name = "user-tf-data-platform-athena-dev-20260601"
 
 tickers = [
   "AAPL",
@@ -26,6 +26,6 @@ lambda_schedule = "cron(0 6 * * ? *)"
 
 tags = {
   Project   = "terraform-aws-data-platform"
-  Owner     = "alefr"
+  Owner     = "user"
   ManagedBy = "terraform"
 }
