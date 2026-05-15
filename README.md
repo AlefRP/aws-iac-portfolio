@@ -4,30 +4,7 @@ Projeto Terraform profissional que provisiona uma **plataforma de dados na AWS**
 
 ## Arquitetura
 
-```text
-EventBridge (cron diario)
-        |
-        v
-  Lambda Python  (stdlib only)         <- coleta tickers do Yahoo Finance
-        |
-        v
-  S3 data bucket / raw/yahoo_finance/dt=YYYY-MM-DD/<ticker>.json
-        |
-        v
-  Glue Crawler (raw)  -> Glue Catalog (raw_*)
-        |
-        v
-  Glue Job PySpark  (stocks_etl)
-        |
-        v JSON -> Parquet partitionBy(ticker, year)
-  S3 data bucket / curated/stocks/ticker=AAPL/year=2026/*.parquet
-        |
-        v
-  Glue Crawler (curated) -> Glue Catalog (curated_*)
-        |
-        v
-  Athena Workgroup -> SQL queries (resultados em S3)
-```
+![Arquitetura da plataforma de dados AWS](doc/img/aws-iac-portfolio.png)
 
 ## Estrutura do repositorio
 
@@ -60,6 +37,10 @@ EventBridge (cron diario)
 |
 |-- examples/
 |   `-- basic/                  # Exemplo basico s3_bucket + iam_user
+|
+|-- doc/
+|   `-- img/
+|       `-- aws-iac-portfolio.png  # Diagrama de arquitetura
 |
 |-- .github/workflows/terraform.yml   # CI: fmt, validate (matrix), tflint, test (matrix), trivy
 |-- .tflint.hcl                       # Config TFLint
